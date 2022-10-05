@@ -1,26 +1,6 @@
-import matplotlib
-import numpy as np
 import matplotlib.pyplot as plt
 
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
-from google.colab import auth
-from oauth2client.client import GoogleCredentials
-auth.authenticate_user()
-gauth = GoogleAuth()
-gauth.credentials = GoogleCredentials.get_application_default()
-drive = GoogleDrive(gauth)
-
-import requests
-from io import StringIO
-
-
-#https://drive.google.com/file/d/1HFMGVVJ76-wOf0mLfounH5ztnkLrk4I6/view?usp=sharing
-file_script=drive.CreateFile({'id':'1HFMGVVJ76-wOf0mLfounH5ztnkLrk4I6'})
-
-
-file_script.GetContentFile('tryItABunch.py')
-
+from tryItABunch import tryItABunch
 
 def copia_insertionSort(A):
   B=[None for i in range(len(A))]
@@ -130,8 +110,6 @@ def QuickSort(A):
 
 
 
-from tryItABunch import tryItABunch
-
 
 n_values_copy,t_values_copy=tryItABunch(copia_insertionSort,10,1500,10,5,300)
 
@@ -160,3 +138,7 @@ plt.xlabel('n')
 plt.ylabel('Time')
 plt.legend()
 plt.show()
+
+
+if __name__ == '__main__':
+    pass
