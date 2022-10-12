@@ -99,6 +99,7 @@ def ShellSort(A):
         gap = gap//2
     return A
 
+# Metodo de ordenamiento quicksort
 def QuickSort(A):
     if len(A) <= 1:
         return A
