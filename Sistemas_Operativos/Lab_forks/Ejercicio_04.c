@@ -15,7 +15,6 @@ int main(void) {
         execl("/bin/ls", "ls", "-l", "/tmp/kris", (char *) 0);
         /*
         execl() ejecuta el programa especificado por filename, que debe ser una cadena de caracteres que
-
         contiene el nombre de un archivo ejecutable.
 
         */

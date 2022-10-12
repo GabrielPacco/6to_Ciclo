@@ -34,7 +34,7 @@ int main(){
     
     else /* fork() returned an error */
     {
-        perror("fork");
+        perror("fork");  // Imprime el mensaje de error
         exit(1);
     }
     return 0;
