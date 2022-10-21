@@ -1,4 +1,8 @@
 import plotly.express as px
+import random as rd 
+import numpy as np
+import pandas as pd
+import csv
 #df = px.data.tips()
 #fig = px.box(df, x="day", y="total_bill", color="smoker", notched=True)
 #fig.show()
@@ -255,24 +259,6 @@ class RedBlackTree:
                     node = self.root
         node.color = 'black'
 
-    def inorder(self, node):
-        if node != self.nil:
-            self.inorder(node.left)
-            print(node.key, end=" ")
-            self.inorder(node.right)
-
-    def preorder(self, node):
-        if node != self.nil:
-            print(node.key, end=" ")
-            self.preorder(node.left)
-            self.preorder(node.right)
-
-    def postorder(self, node):
-        if node != self.nil:
-            self.postorder(node.left)
-            self.postorder(node.right)
-            print(node.key, end=" ")
-
     def height(self, node):
         if node == self.nil:
             return 0
@@ -312,36 +298,75 @@ class RedBlackTree:
             self.print_given_level(node.left, level - 1)
             self.print_given_level(node.right, level - 1)
 
-    def print_tree(self):
-        self.print_level_order()
-        print()
-        self.inorder(self.root)
-        print()
-        self.preorder(self.root)
-        print()
-        self.postorder(self.root)
-        print()
 
 
-
-
+     # Root path to a random node
+    def root_path(self, node):
+        path = []
+        while node != self.nil:
+            path.append(node.key)
+            node = node.parent
+        return path
+    
 
 if __name__ == '__main__':
-    tree = RedBlackTree()
-    tree.insert(11)
-    tree.insert(2)
-    tree.insert(14)
-    tree.insert(1)
-    tree.insert(7)
-    tree.insert(15)
-    tree.insert(5)
-    tree.insert(8)
-    tree.insert(4)
-    tree.print_tree()
-    tree.delete(7)
-    tree.print_tree()
-    tree.delete(14)
-    tree.print_tree()
+
+    nodos_rbt = []
+    indice = []
+    recorrido = []
+    recorrido_aux = []
+    for i in range(100):
+
+        tree = RedBlackTree()
+        array = []
+        # insert
+        for j in range(100):
+            random = rd.randint(0, 10000)
+            array.append(random)
+            tree.insert(random)
+        
+        nodos_rbt.append(array)
+        indice.append(i)
+        
+
+        # choise a random node
+        random_node = rd.choice(array)
+        print("Random node: ", random_node)
+
+        
+        for i in tree.root_path(tree.search(random_node)):
+            recorrido.append(tree.root_path(tree.search(random_node)))
+            
+        recorrido_aux.append(recorrido)
+
+    # Plotly visualization
+
+    print (recorrido)
+
+    # Exportar los 3 arrays en un solo archivo
+    
+    def exportar_csv():
+        with open('exportar.csv', 'w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(["indice", "nodos_rbt", "recorrido"])
+            for i in range(100):
+                writer.writerow([indice[i], nodos_rbt[i], recorrido_aux[i]])
+    
+    exportar_csv()
+
+
+    
+    # Graficas los datos del archivo exportar.csv con plotly boxplot
+
+    df = pd.read_csv('exportar.csv')
+    fig = px.box(df, x="nodos_rbt", y="recorrido", points="all")
+    fig.show()
+
+    
+
+    
+
+    
 
 
 
