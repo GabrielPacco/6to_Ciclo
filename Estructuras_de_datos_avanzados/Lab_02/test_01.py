@@ -3,6 +3,7 @@ import random as rd
 import numpy as np
 import pandas as pd
 import csv
+import time
 #df = px.data.tips()
 #fig = px.box(df, x="day", y="total_bill", color="smoker", notched=True)
 #fig.show()
@@ -309,51 +310,42 @@ class RedBlackTree:
         return path
     
 
+
+
 if __name__ == '__main__':
 
-    nodos_rbt = []
-    indice = []
-    recorrido = []
-    recorrido_aux = []
-    for i in range(100):
+    tiempo = []
+    cantidad = []
+    comparaciones = []
+
+
+    for i in range(10):
 
         tree = RedBlackTree()
-        array = []
+        elementos = []
         # insert
-        for j in range(100):
+        for j in range(20):
             random = rd.randint(0, 10000)
-            array.append(random)
+            elementos.append(random)
             tree.insert(random)
-        
-        nodos_rbt.append(array)
-        indice.append(i)
-        
 
-        # choise a random node
-        random_node = rd.choice(array)
-        print("Random node: ", random_node)
+            # choise a random node
+            random_node = rd.choice(elementos)
+            print("Random node: ", random_node)
 
-        
-        for i in tree.root_path(tree.search(random_node)):
-            recorrido.append(tree.root_path(tree.search(random_node)))
-            
-        recorrido_aux.append(recorrido)
+            t1 = time.time()
+            tree.root_path(tree.search(random_node))
+            t2 = time.time()
+            tiempo.append(t2-t1)
+
 
     # Plotly visualization
-
-    print (recorrido)
 
     # Exportar los 3 arrays en un solo archivo
     
     def exportar_csv():
-        with open('exportar.csv', 'w', newline='') as file:
+        with open('tiempo.csv', 'w', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow(["indice", "nodos_rbt", "recorrido"])
-            for i in range(100):
-                writer.writerow([indice[i], nodos_rbt[i], recorrido_aux[i]])
-    
-    exportar_csv()
-
 
     
     # Graficas los datos del archivo exportar.csv con plotly boxplot

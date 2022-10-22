@@ -3,13 +3,13 @@ import numpy as np
 
 N = 30     # Number of boxes
 
-# generate an array of rainbow colors by fixing the saturation and lightness of the HSL
-# representation of colour and marching around the hue.
-# Plotly accepts any CSS color format, see e.g. http://www.w3schools.com/cssref/css_colors_legal.asp.
+# generar una matriz de colores del arco iris mediante la fijación de la saturación y la luminosidad de la HSL
+# representación del color y marchando alrededor del tono.
+# Plotly acepta cualquier formato de color CSS, véase, por ejemplo, http://www.w3schools.com/cssref/css_colors_legal.asp.
 c = ['hsl('+str(h)+',50%'+',50%)' for h in np.linspace(0, 360, N)]
 
-# Each box is represented by a dict that contains the data, the type, and the colour.
-# Use list comprehension to describe N boxes, each with a different colour and with different randomly generated data:
+# Cada caja está representada por un dict que contiene los datos, el tipo y el color.
+# Usa la comprensión de la lista para describir N cajas, cada una con un color diferente y con diferentes datos generados aleatoriamente:
 fig = go.Figure(data=[go.Box(
     y=3.5 * np.sin(np.pi * i/N) + i/N + (1.5 + 0.5 * np.cos(np.pi*i/N)) * np.random.rand(10),
     marker_color=c[i]
