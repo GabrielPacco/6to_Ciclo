@@ -1,9 +1,10 @@
+from statistics import mean
 import plotly.express as px
 import random as rd 
-import numpy as np
 import pandas as pd
+import numpy as np
 import csv
-import time
+import timeit as ti
 #df = px.data.tips()
 #fig = px.box(df, x="day", y="total_bill", color="smoker", notched=True)
 #fig.show()
@@ -318,40 +319,54 @@ if __name__ == '__main__':
     cantidad = []
     comparaciones = []
 
-
+    cant = 20
     for i in range(10):
 
         tree = RedBlackTree()
         elementos = []
         # insert
-        for j in range(20):
+        for j in range(cant):
             random = rd.randint(0, 10000)
             elementos.append(random)
             tree.insert(random)
+            comparaciones.append(cant)
 
             # choise a random node
             random_node = rd.choice(elementos)
-            print("Random node: ", random_node)
 
-            t1 = time.time()
+            t1 = ti.timeit()
             tree.root_path(tree.search(random_node))
-            t2 = time.time()
-            tiempo.append(t2-t1)
+            t2 = ti.timeit()
+            t = t2 - t1
+            tiempo.append(t)
 
+            cantidad.append(cant)
+    
+        cant += 20
+    
 
     # Plotly visualization
-
+    print(comparaciones)
+    print(tiempo)
+    print(cantidad)
     # Exportar los 3 arrays en un solo archivo
-    
+    # comparaciones, tiempo, cantidad
     def exportar_csv():
-        with open('tiempo.csv', 'w', newline='') as file:
+        with open('exportar.csv', 'w', newline='') as file:
             writer = csv.writer(file)
+            writer.writerow(["comparaciones", "tiempo", "cantidad"])
+            for i in range(len(comparaciones)):
+                writer.writerow([comparaciones[i], tiempo[i], cantidad[i]])
+
+    exportar_csv()
 
     
     # Graficas los datos del archivo exportar.csv con plotly boxplot
-
+    # y = promedio de tiempo
+    # x = cantidad de elementos
+    
     df = pd.read_csv('exportar.csv')
-    fig = px.box(df, x="nodos_rbt", y="recorrido", points="all")
+    fig = px.box(df, x="cantidad", y="tiempo", color="comparaciones")
     fig.show()
 
     
