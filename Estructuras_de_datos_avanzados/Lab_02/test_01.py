@@ -1,8 +1,10 @@
+from statistics import mean
 import plotly.express as px
 import random as rd 
-import numpy as np
 import pandas as pd
+import numpy as np
 import csv
+import timeit as ti
 #df = px.data.tips()
 #fig = px.box(df, x="day", y="total_bill", color="smoker", notched=True)
 #fig.show()
@@ -309,57 +311,62 @@ class RedBlackTree:
         return path
     
 
+
+
 if __name__ == '__main__':
 
-    nodos_rbt = []
-    indice = []
-    recorrido = []
-    recorrido_aux = []
-    for i in range(100):
+    tiempo = []
+    cantidad = []
+    comparaciones = []
+
+    cant = 20
+    for i in range(10):
 
         tree = RedBlackTree()
-        array = []
+        elementos = []
         # insert
-        for j in range(100):
+        for j in range(cant):
             random = rd.randint(0, 10000)
-            array.append(random)
+            elementos.append(random)
             tree.insert(random)
-        
-        nodos_rbt.append(array)
-        indice.append(i)
-        
+            comparaciones.append(cant)
 
-        # choise a random node
-        random_node = rd.choice(array)
-        print("Random node: ", random_node)
+            # choise a random node
+            random_node = rd.choice(elementos)
 
-        
-        for i in tree.root_path(tree.search(random_node)):
-            recorrido.append(tree.root_path(tree.search(random_node)))
-            
-        recorrido_aux.append(recorrido)
+            t1 = ti.timeit()
+            tree.root_path(tree.search(random_node))
+            t2 = ti.timeit()
+            t = t2 - t1
+            tiempo.append(t)
+
+            cantidad.append(cant)
+    
+        cant += 20
+    
 
     # Plotly visualization
-
-    print (recorrido)
-
+    print(comparaciones)
+    print(tiempo)
+    print(cantidad)
     # Exportar los 3 arrays en un solo archivo
-    
+    # comparaciones, tiempo, cantidad
     def exportar_csv():
         with open('exportar.csv', 'w', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow(["indice", "nodos_rbt", "recorrido"])
-            for i in range(100):
-                writer.writerow([indice[i], nodos_rbt[i], recorrido_aux[i]])
-    
-    exportar_csv()
+            writer.writerow(["comparaciones", "tiempo", "cantidad"])
+            for i in range(len(comparaciones)):
+                writer.writerow([comparaciones[i], tiempo[i], cantidad[i]])
 
+    exportar_csv()
 
     
     # Graficas los datos del archivo exportar.csv con plotly boxplot
-
+    # y = promedio de tiempo
+    # x = cantidad de elementos
+    
     df = pd.read_csv('exportar.csv')
-    fig = px.box(df, x="nodos_rbt", y="recorrido", points="all")
+    fig = px.box(df, x="cantidad", y="tiempo", color="comparaciones")
     fig.show()
 
     
