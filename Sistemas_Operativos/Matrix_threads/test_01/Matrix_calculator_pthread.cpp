@@ -49,24 +49,14 @@ int main(int argc,char* argv[]){
 
 	Timer timer;
 	Matrix ob;
+	int flag=readFile(argv[1],ob.firstMatrix,ob.firstMatrixM,ob.firstMatrixN);
+	int flag1=readFile(argv[2],ob.secondMatrix,ob.secondMatrixM,ob.secondMatrixN);
 
-    // Variables para almacenar el nombre de los archivos de entrada
-    char* firstMatrixFile = argv[1];
-    char* secondMatrixFile = argv[2];
-      
-    int flag = readFile(firstMatrixFile,ob.firstMatrix,ob.firstMatrixM,ob.firstMatrixN);
-    if(flag == -1){
-        cout << "Error al abrir el archivo de la primera matriz" << endl;
-        return -1;
-    }
-    flag = readFile(secondMatrixFile,ob.secondMatrix,ob.secondMatrixM,ob.secondMatrixN);
-    if(flag == -1){
-        cout << "Error al abrir el archivo de la segunda matriz" << endl;
-        return -1;
-    }
+	if(flag == -1 || flag1 ==-1){cout << "Cannot Open File" <<endl;return 0;}
+
 
 	if(ob.firstMatrixN != ob.secondMatrixM){
-		cout<<"El orden de la matriz no es apropiado para la multiplicación\n";
+		cout<<"Order of Matrix Not Appropriate for Multiplication\n";
 		return 0;
 	}
 
@@ -74,17 +64,17 @@ int main(int argc,char* argv[]){
 	sem_init(&semaphore1, 1, 1);
 	
 	ob.result = new int*[ob.firstMatrixM];
-	for(int i=0;i<ob.firstMatrixM;i++)
-	{
-		ob.result[i] = new int [ob.secondMatrixN];
+	for(int i=0;i<ob.firstMatrixM;i++){
+	ob.result[i] = new int [ob.secondMatrixN];
+
 	}
+
 
 	ob.noOfProcesses=get_nprocs();
 	int noOfElements1 = ob.firstMatrixM*ob.secondMatrixN;
 
-	if(ob.noOfProcesses > noOfElements1)
-	{
-		ob.noOfProcesses=noOfElements1;
+	if(ob.noOfProcesses > noOfElements1){
+	ob.noOfProcesses=noOfElements1;
 	}
 
 	pthread_t tid[ob.noOfProcesses];
@@ -96,14 +86,17 @@ int main(int argc,char* argv[]){
 
 	Matrix * ob2;
 	for(int i=0;i<ob2->noOfProcesses;i++){
+
 		pthread_join(tid[i],(void**)&ob2);
 	}
 
 	for(int i =0;i<ob2->firstMatrixM;i++){
-		for(int j=0;j<ob2->secondMatrixN;j++){
-			cout << ob2->result[i][j] << " ";
-		}
-		cout<<endl;
+	for(int j=0;j<ob2->secondMatrixN;j++){
+
+	cout << ob2->result[i][j] << " ";
+	}
+
+	cout<<endl;
 	}
 
 	return 0;
