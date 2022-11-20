@@ -24,8 +24,6 @@ struct Matrix{
 
 sem_t semaphore1;
 
-int readFile(char* fileName,int** &arr,int& m,int& n);
-void* MatrixCalculator (void * ob);
 
 struct Timer
 {
@@ -44,64 +42,33 @@ struct Timer
     }
 };
 
-
-int main(int argc,char* argv[]){
-
-	Timer timer;
-	Matrix ob;
-	int flag=readFile(argv[1],ob.firstMatrix,ob.firstMatrixM,ob.firstMatrixN);
-	int flag1=readFile(argv[2],ob.secondMatrix,ob.secondMatrixM,ob.secondMatrixN);
-
-	if(flag == -1 || flag1 ==-1){cout << "Cannot Open File" <<endl;return 0;}
-
-
-	if(ob.firstMatrixN != ob.secondMatrixM){
-		cout<<"Order of Matrix Not Appropriate for Multiplication\n";
-		return 0;
+// Genera una matriz de tamaño m x n
+int** generateMatrix(int m, int n){
+	int** matrix = new int*[m];
+	for(int i = 0; i < m; i++){
+		matrix[i] = new int[n];
 	}
-
-
-	sem_init(&semaphore1, 1, 1);
-	
-	ob.result = new int*[ob.firstMatrixM];
-	for(int i=0;i<ob.firstMatrixM;i++){
-	ob.result[i] = new int [ob.secondMatrixN];
-
-	}
-
-
-	ob.noOfProcesses=get_nprocs();
-	int noOfElements1 = ob.firstMatrixM*ob.secondMatrixN;
-
-	if(ob.noOfProcesses > noOfElements1){
-	ob.noOfProcesses=noOfElements1;
-	}
-
-	pthread_t tid[ob.noOfProcesses];
-	ob.index=0;
-	for(int i=0;i<ob.noOfProcesses;i++){
-		ob.threadNumber[i]=i;	
-		pthread_create (&tid[i],NULL,&MatrixCalculator,(void*) &ob);
-	}
-
-	Matrix * ob2;
-	for(int i=0;i<ob2->noOfProcesses;i++){
-
-		pthread_join(tid[i],(void**)&ob2);
-	}
-
-	for(int i =0;i<ob2->firstMatrixM;i++){
-	for(int j=0;j<ob2->secondMatrixN;j++){
-
-	cout << ob2->result[i][j] << " ";
-	}
-
-	cout<<endl;
-	}
-
-	return 0;
+	return matrix;
 }
 
+// Llena una matriz de tamaño m x n con valores aleatorios
+void fillMatrix(int** matrix, int m, int n){
+	for(int i = 0; i < m; i++){
+		for(int j = 0; j < n; j++){
+			matrix[i][j] = rand() % 100;
+		}
+	}
+}
+
+// Imprime una matriz de tamaño m x n
+void printMatrix(int** matrix, int m, int n){
+	for(int i = 0; i < m; i++){
+		for(int j = 0; j < n; j++){
+			cout << matrix[i][j] << " ";
+		}
+		cout << endl;
+	}
+}
 
 void* MatrixCalculator (void * ob){
 
@@ -147,31 +114,76 @@ void* MatrixCalculator (void * ob){
 	pthread_exit((void*)ob1);
 }
 
-int readFile(char* fileName,int** &arr,int& m,int& n){
+// Funcion para multiplicar matrices usando hilos
+void test(int** firstMatrix, int** secondMatrix, int** result, int firstMatrixM, int firstMatrixN, int secondMatrixM, int secondMatrixN, int noOfProcesses){
 
-	ifstream MatrixFile(fileName);
+	Timer timer;
+	Matrix* ob = new Matrix;
+	ob->firstMatrix = firstMatrix;
+	ob->secondMatrix = secondMatrix;
+	ob->result = result;
+	ob->firstMatrixM = firstMatrixM;
+	ob->firstMatrixN = firstMatrixN;
+	ob->secondMatrixM = secondMatrixM;
+	ob->secondMatrixN = secondMatrixN;
+	ob->noOfProcesses = noOfProcesses;
 
-	if(MatrixFile.fail()){
-		cout << " Error 23234x : File Corrupt or cannot find file " << endl;
-		return -1;
+	pthread_t threads[noOfProcesses];
+	pthread_attr_t attr;
+	pthread_attr_init(&attr);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+	sem_init(&semaphore1,0,1);
+
+	for(int i = 0; i < noOfProcesses; i++){
+		ob->threadNumber[i] = i;
 	}
 
-	MatrixFile >> m;
-	MatrixFile >> n;
-
-	arr = new int* [m];
-
-	for(int i=0;i<m;i++){
-		arr[i] = new int [n];
+	for(int i = 0; i < noOfProcesses; i++){
+		pthread_create(&threads[i], &attr, MatrixCalculator, (void*)ob);
 	}
 
-	for(int i=0;i<m;i++){
-		for(int j=0;j<n;j++){
-		MatrixFile >> arr[i][j];
-		}
+	for(int i = 0; i < noOfProcesses; i++){
+		pthread_join(threads[i], NULL);
 	}
 
-	MatrixFile.close();
+	pthread_attr_destroy(&attr);
+	sem_destroy(&semaphore1);
+}
 
+int main(int argc, char* argv[]){
+
+	// Tamaño de la matriz
+	int t;
+	cout << "Ingrese el tamaño de la matriz: ";
+	cin >> t;
+
+	// Numero de procesos
+	int noOfProcesses;
+	cout << "Ingrese el numero de procesos: ";
+	cin >> noOfProcesses;
+
+	// Generar matrices
+	int** firstMatrix = generateMatrix(t, t);
+	int** secondMatrix = generateMatrix(t, t);
+	int** result = generateMatrix(t, t);
+
+	// Llenar matrices
+	fillMatrix(firstMatrix, t, t);
+	fillMatrix(secondMatrix, t, t);
+
+	// Multiplicar matrices
+	test(firstMatrix, secondMatrix, result, t, t, t, t, noOfProcesses);
+
+	/*
+	// Imprimir matrices
+	cout << "Matriz 1:" << endl;
+	printMatrix(firstMatrix, t, t);
+	cout << "Matriz 2:" << endl;
+	printMatrix(secondMatrix, t, t);
+	cout << "Resultado:" << endl;
+	printMatrix(result, t, t);
+	*/
+	
 	return 0;
 }
