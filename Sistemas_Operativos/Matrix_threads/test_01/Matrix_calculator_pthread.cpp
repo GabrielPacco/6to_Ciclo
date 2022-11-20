@@ -114,6 +114,143 @@ void* MatrixCalculator (void * ob){
 	pthread_exit((void*)ob1);
 }
 
+// Suma de matrices usando hilos
+void *Sum(void *ob){
+
+	Matrix* ob1 = new Matrix;
+	ob1 = (Matrix*) ob;
+
+	int noOfElements = ob1->firstMatrixM*ob1->secondMatrixN;
+	int noOfOp = noOfElements/ob1->noOfProcesses;
+	int remaining = noOfElements % ob1->noOfProcesses;
+
+	int firstOperation,lastOperation;
+
+	sem_wait(&semaphore1);
+	if(ob1->threadNumber[ob1->index] == 0){
+
+		firstOperation = noOfOp*ob1->threadNumber[0];
+		lastOperation = noOfOp*(ob1->threadNumber[0]+1)+remaining;
+
+		ob1->index++;
+	}
+	else
+	{
+		firstOperation = noOfOp*ob1->threadNumber[ob1->index]+remaining;
+		lastOperation = noOfOp*(ob1->threadNumber[ob1->index]+1)+remaining;
+		ob1->index++;
+	} 
+
+	sem_post(&semaphore1);
+
+	for(int i =firstOperation;i<lastOperation;i++){
+		const int row=i%ob1->firstMatrixM;
+		const int col=i/ob1->firstMatrixM;
+
+		float result1=0;
+
+		for(int j=0;j<ob1->firstMatrixM;j++)
+		{
+			result1 += ob1->firstMatrix[row][j]+ob1->secondMatrix[j][col];
+		}
+
+		ob1->result[row][col]=result1;
+	}
+	pthread_exit((void*)ob1);
+}
+
+// Multiplicación de matrices usando hilos
+void *Multiply(void *ob){
+
+	Matrix* ob1 = new Matrix;
+	ob1 = (Matrix*) ob;
+
+	int noOfElements = ob1->firstMatrixM*ob1->secondMatrixN;
+	int noOfOp = noOfElements/ob1->noOfProcesses;
+	int remaining = noOfElements % ob1->noOfProcesses;
+
+	int firstOperation,lastOperation;
+
+	sem_wait(&semaphore1);
+	if(ob1->threadNumber[ob1->index] == 0){
+
+		firstOperation = noOfOp*ob1->threadNumber[0];
+		lastOperation = noOfOp*(ob1->threadNumber[0]+1)+remaining;
+
+		ob1->index++;
+	}
+	else
+	{
+		firstOperation = noOfOp*ob1->threadNumber[ob1->index]+remaining;
+		lastOperation = noOfOp*(ob1->threadNumber[ob1->index]+1)+remaining;
+		ob1->index++;
+	} 
+
+	sem_post(&semaphore1);
+
+	for(int i =firstOperation;i<lastOperation;i++){
+		const int row=i%ob1->firstMatrixM;
+		const int col=i/ob1->firstMatrixM;
+
+		float result1=0;
+
+		for(int j=0;j<ob1->firstMatrixM;j++)
+		{
+			result1 += ob1->firstMatrix[row][j]*ob1->secondMatrix[j][col];
+		}
+
+		ob1->result[row][col]=result1;
+	}
+	pthread_exit((void*)ob1);
+}
+
+// Resta de matrices usando hilos
+void *Subtract(void *ob){
+
+	Matrix* ob1 = new Matrix;
+	ob1 = (Matrix*) ob;
+
+	int noOfElements = ob1->firstMatrixM*ob1->secondMatrixN;
+	int noOfOp = noOfElements/ob1->noOfProcesses;
+	int remaining = noOfElements % ob1->noOfProcesses;
+
+	int firstOperation,lastOperation;
+
+	sem_wait(&semaphore1);
+	if(ob1->threadNumber[ob1->index] == 0){
+
+		firstOperation = noOfOp*ob1->threadNumber[0];
+		lastOperation = noOfOp*(ob1->threadNumber[0]+1)+remaining;
+
+		ob1->index++;
+	}
+	else
+	{
+		firstOperation = noOfOp*ob1->threadNumber[ob1->index]+remaining;
+		lastOperation = noOfOp*(ob1->threadNumber[ob1->index]+1)+remaining;
+		ob1->index++;
+	} 
+
+	sem_post(&semaphore1);
+
+	for(int i =firstOperation;i<lastOperation;i++){
+		const int row=i%ob1->firstMatrixM;
+		const int col=i/ob1->firstMatrixM;
+
+		float result1=0;
+
+		for(int j=0;j<ob1->firstMatrixM;j++)
+		{
+			result1 += ob1->firstMatrix[row][j]-ob1->secondMatrix[j][col];
+		}
+
+		ob1->result[row][col]=result1;
+	}
+	pthread_exit((void*)ob1);
+}
+
+
+
 // Funcion para multiplicar matrices usando hilos
 void test(int** firstMatrix, int** secondMatrix, int** result, int firstMatrixM, int firstMatrixN, int secondMatrixM, int secondMatrixN, int noOfProcesses){
 

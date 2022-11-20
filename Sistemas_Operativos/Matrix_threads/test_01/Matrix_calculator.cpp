@@ -44,6 +44,30 @@ void multiply(int* matrix1, int* matrix2, int* result, int size)
     }
 }
 
+// Sumar matrices
+void add(int* matrix1, int* matrix2, int* result, int size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size; j++)
+        {
+            result[i * size + j] = matrix1[i * size + j] + matrix2[i * size + j];
+        }
+    }
+}
+
+// Restar matrices
+void subtract(int* matrix1, int* matrix2, int* result, int size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size; j++)
+        {
+            result[i * size + j] = matrix1[i * size + j] - matrix2[i * size + j];
+        }
+    }
+}
+
 // Crear matrices
 void create(int* matrix, int size)
 {
@@ -93,6 +117,8 @@ int main()
     {
         Timer timer;
         multiply(matrix1, matrix2, result, n);
+        add(matrix1, matrix2, result, n);
+        subtract(matrix1, matrix2, result, n);
     }
 
     // Imprimir resultado
