@@ -6,16 +6,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 
-
-// Variables globales
-#define NTHREADS 4
-#define ARRAYSIZE 100000000
-#define ITERATIONS ARRAYSIZE / NTHREADS
-
-// Variables globales
-double sum=0.0;  // Variable compartida
-double a[ARRAYSIZE];
-pthread_mutex_t sum_mutex;  // Permite soliciar el acceso a la variable compartida
+// Mutex es un bloqueo de exclusión mutua. Solo un hilo puede mantener la cerradura.
 
 // Función para calcular el tiempo de ejecución en milisegundos
 void timeval_subtract (struct timeval *result, struct timeval *x, struct timeval *y)
@@ -38,82 +29,76 @@ void timeval_subtract (struct timeval *result, struct timeval *x, struct timeval
   result->tv_usec = x->tv_usec - y->tv_usec;
 }
 
-// Funcion que ejecutan las NTHREADS
-void *do_work(void *tid)
+
+
+double do_work2(void *tid, double a[], double sum, double sum_mutex, int NTHREADS, int ARRAYSIZE, int ITERATIONS)
 {
-    int i, start, *mytid, end;  
+    int i, start, end;  
     double mysum=0.0;
     /* Inicializar mi parte de la matriz global y mantener suma local */
 
-    mytid = (int *) tid; // Convertir de void * a int *
-    start = (*mytid * ITERATIONS);  // Cada thread calcula su parte de la matriz
+    start = (0 * ITERATIONS);  // Cada thread calcula su parte de la matriz
     end = start + ITERATIONS;
-    printf ("\n[Thread %5d] Doing iterations \t%10d to \t%10d",*mytid,start,end-1);
+    printf ("\n[Thread %5d] Doing iterations \t%10d to \t%10d",0,start,end-1);
 
-    // Iterar sobre mi parte de la matriz
+    // Iterar sobre mi parte del array y calcular la suma local de cada thread 
     for (i=start; i < end ; i++) {
         a[i] = i * 1.0;
         mysum = mysum + a[i];
     }
 
     /* Bloquear el mutex y actualizar la suma global, luego salir */
-    pthread_mutex_lock (&sum_mutex);
+    pthread_mutex_lock(&sum_mutex);
     sum = sum + mysum;
-    pthread_mutex_unlock (&sum_mutex);
-    pthread_exit(NULL);
+    pthread_mutex_unlock(&sum_mutex);
+    return sum;
 }
 
 int main(int argc, char *argv[])
 {
-    // Variables para medir el tiempo de ejecucion
-    struct timeval t_ini, t_fin;
-    double msecs;
-
-
-    // Empezar a medir el tiempo de ejecucion
-    gettimeofday(&t_ini, NULL);
+    int NTHREADS = 4; // Número de threads
+    int ARRAYSIZE = 100000000; // Tamaño del array
+    int ITERATIONS = ARRAYSIZE/NTHREADS; // Iteraciones por thread
     
-    // Identificadores de los threads
-    int i, start, tids[NTHREADS];
+    // Declarar variables
+    double sum=0.0;
+    double a[ARRAYSIZE];
+    pthread_mutex_t sum_mutex;
+    
+    // Inicializar variables
+    int i, start, tid[NTHREADS];
     pthread_t threads[NTHREADS];
 
     pthread_attr_t attr;
-    /* Configuración de Pthreads: inicializar el mutex y crear explícitamente
-    crear hilos en un estado de unión (para la portabilidad). Pasar a cada hilo
-    su desplazamiento de bucle */
+
+    // Inicializar el mutex
     pthread_mutex_init(&sum_mutex, NULL);
     pthread_attr_init(&attr);
-    pthread_attr_setdetachstate(&attr,
-    PTHREAD_CREATE_JOINABLE);
+    pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+
+    // Inicializar el array
     for (i=0; i<NTHREADS; i++) {
-        tids[i] = i;
-        pthread_create(&threads[i], &attr, do_work, (void *)
-        &tids[i]);
+        tid[i] = i;
+        // Crear los threads
+        pthread_create(&threads[i], &attr, do_work2, (void *) &tid[i]);
     }
-    /* Esperar a que todos los hilos se completen y luego imprimir la suma global */
+
+    // Unir los threads
     for (i=0; i<NTHREADS; i++) {
         pthread_join(threads[i], NULL);
     }
-    printf ("\n[MAIN] Done. Sum= %e", sum);
-    printf ("\n");
 
-    // Terminar de medir el tiempo de ejecucion
-    gettimeofday(&t_fin, NULL);
-
-    // Tiempo de ejecucion
-    timeval_subtract(&t_fin, &t_fin, &t_ini);
-    msecs = (double) t_fin.tv_sec + (double) t_fin.tv_usec / 1000.0;
-    printf("Tiempo de ejecucion: %f milisegundos: \t", msecs);
-    printf ("\n");
-
-    sum=0.0;
+    // Imprimir el resultado
+    printf("Sum = %f \n", sum);
+    
     /* for (i=0;i<ARRAYSIZE;i++){
     a[i] = i*1.0;
     sum = sum + a[i]; }
     printf("\n[MAIN] Check Sum= %e",sum);
     */
-    /* Clean up and exit */
+    // Clean up and exit 
     pthread_attr_destroy(&attr);
-    pthread_mutex_destroy(&sum_mutex);
+    //pthread_mutex_destroy(&sum_mutex);
     pthread_exit (NULL);    
+    
 }
