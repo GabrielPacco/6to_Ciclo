@@ -1,0 +1,24 @@
+
+import java.io.*;
+import java.util.*;
+
+public class GFG implements Runnable {
+	public void run()
+	{
+		System.out.println(
+			"Thread is created and running successfully...");
+	}
+	public static void main(String[] args)
+	{
+		// alinear la clase GFG con
+		// Interfaz Runnable
+		Runnable r1 = new GFG();
+		Thread t1 = new Thread(r1, "My Thread");
+		// Objeto Thread iniciado
+		t1.run();
+		// obteniendo el Hilo
+		// con el método de str
+		String str = t1.getName();
+		System.out.println(str);
+	}
+}
